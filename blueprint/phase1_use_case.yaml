@@ -1,0 +1,26 @@
+use_case: >
+  Tuthand is an embeddable AI assistant for websites. It answers visitor questions based on site-specific content,
+  reduces support friction, and improves clarity for SaaS, agency, and service-based businesses.
+
+target_users:
+  - Startup founders
+  - SaaS marketers
+  - Agencies
+  - Online educators
+
+constraints:
+  - No hallucination: answers must reference actual content
+  - Clarify questions when confidence is low
+  - Avoid personal or financial assumptions
+  - Use response plan or internal tools when possible
+
+trust_model:
+  auto_run:
+    - Clear FAQ questions (e.g. “What’s your refund policy?”)
+    - Public knowledge answers already in CMS
+  confirm:
+    - Pricing inquiries
+    - Gray-area or limited confidence answers
+  escalate:
+    - Any personal or sensitive requests
+    - Requests outside known context (e.g. “Show me analytics”)

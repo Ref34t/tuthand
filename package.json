@@ -1,0 +1,16 @@
+{
+  "name": "tuthand",
+  "version": "1.0.0",
+  "description": "Tuthand is an AI assistant that can be embedded into any website. It uses your own website content to answer questions, improve support, and provide fast, contextual help to visitors.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
