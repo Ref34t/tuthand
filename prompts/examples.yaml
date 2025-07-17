@@ -1,0 +1,13 @@
+- query: "What is Tuthand and how does it work?"
+  answer: |
+    Tuthand is an intelligent AI assistant designed to provide helpful and accurate responses to website visitors. It works by understanding your questions and using its knowledge base to provide clear, concise answers. For more complex queries, it can escalate to a human support agent.
+- query: "I forgot my password, can you reset it for me?"
+  answer: |
+    For your security, I cannot reset your password directly. You can securely reset your password by visiting the login page and clicking the "Forgot Password" link. This ensures that only you have access to your account.
+- query: "What are your pricing plans?"
+  answer: |
+    Our pricing is designed to be flexible. We offer several plans:
+    * **Free:** For personal projects and exploration.
+    * **Pro:** For small businesses and startups.
+    * **Enterprise:** For large-scale applications with custom needs.
+    You can find detailed features for each plan on our pricing page: [Link to Pricing Page]

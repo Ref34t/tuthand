@@ -1,0 +1,299 @@
+# Tuthand Prompt Configuration
+# Trust-aware routing and user-type specific prompt variants
+
+# User Type Classifications
+user_types:
+  founder:
+    description: "Building or researching AI assistants"
+    indicators: ["compare", "architecture", "scalability", "enterprise"]
+    default_strategy: "chain_of_thought"
+    confidence_boost: 0.05
+    
+  customer:
+    description: "Potential buyer evaluating the product"
+    indicators: ["pricing", "cost", "features", "benefits"]
+    default_strategy: "plain"
+    confidence_boost: 0.0
+    
+  developer:
+    description: "Technical implementation and integration"
+    indicators: ["api", "integration", "custom", "technical"]
+    default_strategy: "react"
+    confidence_boost: 0.1
+    
+  support:
+    description: "Help with existing implementation"
+    indicators: ["error", "problem", "issue", "broken"]
+    default_strategy: "reflection"
+    confidence_boost: -0.05
+
+# Context-Aware Routing Rules
+routing_rules:
+  
+  # High confidence - Direct responses
+  auto_run:
+    confidence_threshold: 95
+    strategies: ["plain"]
+    user_types: ["customer", "founder"]
+    token_budget: 150
+    response_time_target: 1.0
+    
+  # Medium confidence - Confirmation required
+  confirm:
+    confidence_threshold: 70
+    strategies: ["chain_of_thought", "react", "reflection"]
+    user_types: ["developer", "founder", "customer"]
+    token_budget: 300
+    response_time_target: 2.5
+    
+  # Low confidence - Human escalation
+  escalate:
+    confidence_threshold: 0
+    strategies: ["escalation"]
+    user_types: ["support", "customer", "developer", "founder"]
+    token_budget: 125
+    response_time_target: 1.0
+
+# Dynamic Prompt Selection
+prompt_selection:
+  
+  # Query complexity assessment
+  complexity_factors:
+    simple:
+      keywords: ["what", "how much", "when", "where"]
+      max_tokens: 50
+      strategy: "plain"
+      
+    moderate:
+      keywords: ["how", "why", "compare", "difference"]
+      max_tokens: 200
+      strategy: "chain_of_thought"
+      
+    complex:
+      keywords: ["implement", "integrate", "custom", "troubleshoot"]
+      max_tokens: 400
+      strategy: "react"
+      
+    sensitive:
+      keywords: ["personal", "account", "data", "private"]
+      max_tokens: 100
+      strategy: "escalation"
+  
+  # Context-dependent adjustments
+  context_modifiers:
+    
+    # Page-specific context
+    page_context:
+      pricing_page:
+        confidence_boost: 0.15
+        preferred_strategy: "plain"
+        token_budget: 200
+        
+      documentation:
+        confidence_boost: 0.2
+        preferred_strategy: "react"
+        token_budget: 300
+        
+      support_page:
+        confidence_boost: -0.1
+        preferred_strategy: "reflection"
+        token_budget: 250
+        
+      landing_page:
+        confidence_boost: 0.05
+        preferred_strategy: "chain_of_thought"
+        token_budget: 200
+    
+    # User journey stage
+    journey_stage:
+      first_visit:
+        confidence_boost: -0.05
+        preferred_strategy: "chain_of_thought"
+        explanation_level: "detailed"
+        
+      returning_user:
+        confidence_boost: 0.1
+        preferred_strategy: "plain"
+        explanation_level: "concise"
+        
+      engaged_prospect:
+        confidence_boost: 0.05
+        preferred_strategy: "react"
+        explanation_level: "balanced"
+
+# Performance Thresholds
+performance_thresholds:
+  
+  # Response time limits
+  response_time:
+    target: 2.0  # seconds
+    warning: 3.0
+    critical: 5.0
+    
+  # Token usage limits
+  token_usage:
+    target: 200
+    warning: 400
+    critical: 600
+    
+  # Confidence requirements
+  confidence_requirements:
+    auto_run_minimum: 95
+    confirm_minimum: 70
+    escalate_threshold: 70
+    
+  # Cost management
+  cost_limits:
+    target_per_interaction: 0.05  # USD
+    warning_threshold: 0.08
+    critical_threshold: 0.12
+
+# Fallback Strategies
+fallback_strategies:
+  
+  # When primary strategy fails
+  strategy_fallback:
+    chain_of_thought: "plain"
+    react: "chain_of_thought"
+    reflection: "plain"
+    plain: "escalation"
+    
+  # When confidence is borderline
+  confidence_fallback:
+    borderline_auto_run: "confirm"  # 90-95% confidence
+    borderline_confirm: "escalate"  # 65-70% confidence
+    
+  # When performance thresholds exceeded
+  performance_fallback:
+    high_latency: "plain"  # Switch to simpler strategy
+    high_tokens: "plain"   # Reduce token usage
+    high_cost: "escalation"  # Human handoff
+
+# Personalization Rules
+personalization:
+  
+  # User-specific adaptations
+  user_history:
+    positive_feedback:
+      confidence_boost: 0.1
+      strategy_preference: "maintain_current"
+      
+    negative_feedback:
+      confidence_boost: -0.15
+      strategy_preference: "escalate"
+      
+    frequent_escalations:
+      confidence_boost: -0.2
+      strategy_preference: "reflection"
+  
+  # Behavioral patterns
+  interaction_patterns:
+    quick_responses_preferred:
+      strategy_preference: "plain"
+      token_budget_reduction: 0.3
+      
+    detailed_explanations_preferred:
+      strategy_preference: "reflection"
+      token_budget_increase: 0.5
+      
+    technical_focus:
+      strategy_preference: "react"
+      confidence_boost: 0.1
+
+# A/B Testing Configuration
+ab_testing:
+  
+  # Active experiments
+  experiments:
+    strategy_comparison:
+      name: "Chain-of-Thought vs Plain for FAQ"
+      traffic_split: 50  # percentage
+      variants:
+        - strategy: "chain_of_thought"
+        - strategy: "plain"
+      success_metrics: ["user_satisfaction", "response_time"]
+      
+    confidence_thresholds:
+      name: "Optimal Confidence Thresholds"
+      traffic_split: 30
+      variants:
+        - auto_run_threshold: 95
+        - auto_run_threshold: 90
+        - auto_run_threshold: 85
+      success_metrics: ["accuracy", "escalation_rate"]
+  
+  # Testing framework
+  testing_framework:
+    minimum_sample_size: 100
+    statistical_significance: 0.05
+    test_duration: 7  # days
+    
+# Monitoring and Alerting
+monitoring:
+  
+  # Key performance indicators
+  kpis:
+    response_accuracy:
+      target: 0.95
+      measurement: "confidence_correlation"
+      
+    user_satisfaction:
+      target: 0.90
+      measurement: "thumbs_up_rate"
+      
+    escalation_rate:
+      target: 0.10
+      measurement: "escalate_trust_level_rate"
+      
+    cost_efficiency:
+      target: 0.05
+      measurement: "dollars_per_interaction"
+  
+  # Alert conditions
+  alerts:
+    high_escalation_rate:
+      condition: "escalation_rate > 0.20"
+      action: "review_confidence_thresholds"
+      
+    low_confidence_accuracy:
+      condition: "confidence_correlation < 0.85"
+      action: "retrain_confidence_model"
+      
+    high_response_time:
+      condition: "avg_response_time > 4.0"
+      action: "optimize_token_usage"
+      
+    cost_overrun:
+      condition: "cost_per_interaction > 0.10"
+      action: "implement_cost_controls"
+
+# Integration Points
+integration:
+  
+  # External systems
+  external_systems:
+    analytics:
+      endpoint: "/api/analytics/interactions"
+      metrics: ["user_type", "strategy", "confidence", "satisfaction"]
+      
+    feedback:
+      endpoint: "/api/feedback/collect"
+      data: ["interaction_id", "rating", "comments"]
+      
+    performance:
+      endpoint: "/api/performance/metrics"
+      data: ["response_time", "token_usage", "cost"]
+  
+  # Internal components
+  internal_components:
+    memory_system:
+      context_assembly: "dynamic"
+      retention_policy: "24_hours"
+      
+    vector_database:
+      similarity_threshold: 0.85
+      max_results: 5
+      
+    cache_system:
+      ttl: 3600  # seconds
+      max_size: 10000  # entries
