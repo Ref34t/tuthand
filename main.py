@@ -170,52 +170,26 @@ class TuthandAssistant:
         }
     
     def format_examples(self) -> str:
-        """Format few-shot examples for the prompt"""
-        if not self.examples:
-            return ""
-        
-        formatted_examples = ["Here are some examples of how to respond:"]
-        for example in self.examples:
-            formatted_examples.append("User Query: {}\nAI Response: {}".format(example['query'], example['answer']))
-        return "\n\n".join(formatted_examples)
+        """Format few-shot examples for the prompt (disabled for token optimization)"""
+        # Disabled examples to reduce prompt size - move to fine-tuning later
+        return ""
 
     def get_system_prompt(self, user_type: str = "visitor") -> str:
-        """Get system prompt based on user type"""
-        response_approach = 'Technical and detailed' if user_type == 'developer' else 'Clear and accessible' if user_type == 'customer' else 'Simple and friendly'
+        """Get optimized system prompt based on user type"""
+        approach = 'technical' if user_type == 'developer' else 'clear' if user_type == 'customer' else 'simple'
         
-        base_prompt = """You are Tuthand, an intelligent AI assistant for websites that provides helpful, accurate responses to visitor questions.
+        base_prompt = """You are Tuthand, a helpful AI assistant for websites.
 
-CORE IDENTITY:
-- Professional but approachable
-- Focused on being genuinely helpful
-- Transparent about limitations
-- Prioritizes user trust and safety
-
-TRUST-AWARE ROUTING:
-- HIGH CONFIDENCE (>80%): Provide direct, helpful answers
-- MEDIUM CONFIDENCE (50-80%): Ask for clarification or provide caveats
-- LOW CONFIDENCE (<50%): Acknowledge limitations and suggest escalation
-
-SENSITIVE TOPICS (AUTO-ESCALATE):
-- Political conflicts, controversial topics
-- Personal/private information requests
-- Medical, legal, or financial advice
-- Topics outside your knowledge domain
-
-USER CONTEXT: {}
-RESPONSE APPROACH: {}
+RULES:
+- Be professional, helpful, and transparent about limitations
+- HIGH confidence (>80%): Give direct answers
+- MEDIUM confidence (50-80%): Ask for clarification  
+- LOW confidence (<50%): Escalate to human support
+- Auto-escalate: politics, personal data, medical/legal advice
 
 RESPONSE FORMAT:
-- Your response MUST be a JSON object with two keys: "response" (string) and "confidence" (float, 0.0 to 1.0).
-- The "response" key should contain your helpful answer.
-- The "confidence" key should be your self-assessed confidence in the accuracy and completeness of your "response".
-- Example: {{"response": "Hello! How can I help you today?", "confidence": 0.95}}
-- Do NOT include any other text outside the JSON object.
-- Be concise but complete
-- Provide sources when possible
-- Maintain consistent, helpful tone
-
-Remember: Your goal is to be trustworthy and useful. When uncertain, be transparent about limitations.""".format(user_type, response_approach)
+Return JSON only: {{"response": "your answer", "confidence": 0.95}}
+User type: {} (respond {})""".format(user_type, approach)
 
         return base_prompt
     
@@ -340,9 +314,9 @@ Please respond according to the strategy above."""
     
     def estimate_cost(self, tokens: int) -> float:
         """Estimate cost based on token usage"""
-        # GPT-4o-mini pricing (approximate)
-        input_cost_per_token = 0.00015 / 1000  # $0.15 per 1k tokens
-        output_cost_per_token = 0.0006 / 1000  # $0.6 per 1k tokens
+        # GPT-4o-mini pricing (updated rates)
+        input_cost_per_token = 0.15 / 1000  # $0.15 per 1k tokens
+        output_cost_per_token = 0.6 / 1000  # $0.6 per 1k tokens
         
         # Rough estimate assuming 70% input, 30% output
         return (tokens * 0.7 * input_cost_per_token) + (tokens * 0.3 * output_cost_per_token)
@@ -549,7 +523,8 @@ def main():
                     print(response_text)
                     
                     response_time = time.time() - start_time
-                    tokens_used = len(response_text.split()) # Rough approximation
+                    # Better token estimation: roughly 1.3 tokens per word + prompt tokens
+                    tokens_used = int(len(response_text.split()) * 1.3) + 200  # Add estimated prompt tokens
                     
                     trust_level = assistant.determine_trust_level(confidence)
                     cost_estimate = assistant.estimate_cost(tokens_used)
@@ -637,7 +612,8 @@ def main():
 
                     # Once streaming is complete, get the full response object for metrics
                     response_time = time.time() - start_time
-                    tokens_used = len(response_text.split()) # A rough approximation
+                    # Better token estimation: roughly 1.3 tokens per word + prompt tokens
+                    tokens_used = int(len(response_text.split()) * 1.3) + 200  # Add estimated prompt tokens
                     
                     trust_level = assistant.determine_trust_level(confidence)
                     cost_estimate = assistant.estimate_cost(tokens_used)
